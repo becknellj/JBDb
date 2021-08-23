@@ -4,7 +4,7 @@ import urllib
 import json
 
 conn = http.client.HTTPSConnection("movie-database-imdb-alternative.p.rapidapi.com")
-jade_conn = sqlite3.connect ('becknell_movies.db')
+jade_conn = sqlite3.connect ('movie_list.db')
 c = jade_conn.cursor() 
 
 c.execute('''
@@ -16,18 +16,19 @@ headers = {
     'x-rapidapi-host': "movie-database-imdb-alternative.p.rapidapi.com"
     }
 
+
 for row in c.fetchall():
+    temp_data = urllib.parse.urlencode({'s':''.join(row)})
 
-    str = ''.join(row)
-    values = {'s':str}
-    data = urllib.parse.urlencode(values)
+    conn.request("GET", "/?"+temp_data+"&page=1&r=json", headers=headers)
+    data = json.loads(conn.getresponse().read())
 
-    print(data)
 
-    conn.request("GET", "/?"+data+"&page=1&r=json", headers=headers)
-    
-    res = conn.getresponse()
-    data2 = json.loads(res.read())
+    print(data['Search'][0]['Title'])
+
+
+
+
 
     #data2 is essentially a list of dictionaries
     #need to get thefist dictionary in the list and get the imdb id from that dict
